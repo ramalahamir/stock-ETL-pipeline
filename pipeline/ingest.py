@@ -2,11 +2,6 @@ import pandas as pd
 import logging 
 from config import RAW_DATA_DIR
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
 logger = logging.getLogger(__name__)
 
 def ingest_data() -> pd.DataFrame:
