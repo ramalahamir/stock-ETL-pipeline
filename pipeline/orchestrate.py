@@ -48,4 +48,4 @@ def schedule_pipeline() -> None:
     logger.info("Scheduler Running...")
     while True:
         schedule.run_pending()
-        time.sleep(1)
+        time.sleep(60)
