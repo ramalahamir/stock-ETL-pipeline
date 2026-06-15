@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import create_engine
 from config import DB_URL, PROCESSED_DATA_DIR
 
-logger = logging.getlogger(__name__)
+logger = logging.getLogger(__name__)
 
 def load_data(tables: dict[str, pd.DataFrame]) -> None:
     """

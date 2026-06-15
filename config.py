@@ -4,7 +4,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Data paths
-RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw')
+RAW_DATA_DIR = os.path.join(BASE_DIR, "data", "raw", "US_Stock_Data.csv")
 PROCESSED_DATA_DIR = os.path.join(BASE_DIR, 'data', 'processed')
 
 # database

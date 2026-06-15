@@ -27,7 +27,7 @@ def transform_data(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         logger.info(f"Cleaned column names: {list(df.columns)}")
 
         # Step 3: Convert date column to datetime
-        df["date"] = pd.to_datetime(df["date"])
+        df["date"] = pd.to_datetime(df["date"], dayfirst=True, format="mixed")
         logger.info("Converted date column to datetime")
 
         # Step 4: Sort by date
@@ -45,18 +45,25 @@ def transform_data(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         df.bfill(inplace=True)
         logger.info("Handled missing values with forward/backward fill")
 
-        # Step 7: Calculate S&P 500 daily % change
+        # Step 7: Convert price and volume columns to numeric
+        numeric_cols = [col for col in df.columns if col != "date"]
+        for col in numeric_cols:
+            df[col] = df[col].astype(str).str.replace(",", "", regex=False).str.strip()
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        # Step 8: Calculate S&P 500 daily % change
         df["sandp_500_pct_change"] = df["sandp_500_price"].pct_change() * 100
         logger.info("Calculated S&P 500 daily percentage change")
 
-        # Step 8: Flag Significant market moves (> 2% change in either direction)
+        # Step 9: Flag Significant market moves (> 2% change in either direction)
         df["sandp_500_significant_move"] = df["sandp_500_pct_change"].abs() > 2
         logger.info("Flagged significant market moves")
 
-        # Step 9: Calculate 7-day rolling average for S&P 500 price
+        # Step 10: Calculate 7-day rolling average for S&P 500 price
         df["sandp_500_7day_avg"] = df["sandp_500_price"].rolling(window=7).mean()
+        logger.info("Calculated 7-day rolling average for S&P 500 price")
 
-        # Step 10: Split into asset category tables
+        # Step 11: Split into asset category tables
         tables = split_into_tables(df)
         logger.info(f"Split data into {len(tables)} asset category tables")
         
@@ -72,7 +79,7 @@ def split_into_tables(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
     tables = {
         "indices": df[["date", "sandp_500_price", "nasdaq_100_price", "nasdaq_100_vol",
-                        "sp500_daily_change_pct", "sp500_significant_move", "sp500_7day_avg"]],
+                        "sandp_500_pct_change", "sandp_500_significant_move", "sandp_500_7day_avg"]],
 
         "commodities": df[["date", "natural_gas_price", "natural_gas_vol",
                             "crude_oil_price", "crude_oil_vol", "copper_price", "copper_vol",
