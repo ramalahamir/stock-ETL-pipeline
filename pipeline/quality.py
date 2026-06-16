@@ -46,6 +46,11 @@ def check_null_values(tables: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame
             if col == "date":
                 continue
 
+            # Skip calculated columns because nulls at start are expected
+            calculated_cols = ["sandp_500_pct_change", "sandp_500_7day_avg", "sp500_significant_move"]
+            if col in calculated_cols:
+                continue
+
             null_count = df[col].isnull().sum()
             null_pct = (null_count / len(df)) * 100
 
@@ -94,11 +99,11 @@ def check_sp500_daily_change(tables: dict[str, pd.DataFrame]) -> dict[str, pd.Da
     """
     indices = tables.get("indices")
 
-    if indices is None or "sp500_daily_change_pct" not in indices.columns:
-        logger.warning("WARNING: Could not find indices table or sp500_daily_change_pct column")
+    if indices is None or "sandp_500_pct_change" not in indices.columns:
+        logger.warning("WARNING: Could not find indices table or sandp_500_pct_change column")
         return tables
 
-    extreme_moves = indices["sp500_daily_change_pct"].abs() > MAX_DAILY_CHANGE_PCT
+    extreme_moves = indices["sandp_500_pct_change"].abs() > MAX_DAILY_CHANGE_PCT
     extreme_count = extreme_moves.sum()
 
     if extreme_count > 10:
