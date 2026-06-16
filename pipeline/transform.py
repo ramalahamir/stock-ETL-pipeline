@@ -40,10 +40,15 @@ def transform_data(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
         logger.info(f"Removed {before - len(df)} duplicate rows")
 
         # Step 6: Forward fill missing values 
-        df.ffill(inplace=True)
-        # Back fill any remaining nulls at the start of the dataset
-        df.bfill(inplace=True)
-        logger.info("Handled missing values with forward/backward fill")
+        # Price columns → forward fill (carry last known price)
+        price_cols = [col for col in df.columns if "price" in col]
+        df[price_cols] = df[price_cols].ffill().bfill()
+        logger.info("Forward filled missing price values")
+
+        # Volume columns → fill with 0 (no trading = zero volume)
+        vol_cols = [col for col in df.columns if "vol" in col]
+        df[vol_cols] = df[vol_cols].fillna(0)
+        logger.info("Filled missing volume values with 0")
 
         # Step 7: Convert price and volume columns to numeric
         numeric_cols = [col for col in df.columns if col != "date"]

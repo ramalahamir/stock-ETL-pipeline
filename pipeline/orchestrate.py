@@ -4,6 +4,7 @@ import time
 from pipeline.ingest import ingest_data
 from pipeline.transform import transform_data
 from pipeline.load import load_data
+from pipeline.quality import run_quality_checks
 from config import SCHEDULE_TIME
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,11 @@ def run_pipeline() -> None:
         logger.info("Transforming data...")
         transformed_tables = transform_data(raw_data)
 
-        # Step 3: Load data
+        # Step 3: Quality checks
+        logger.info("STEP 3: Running quality checks...")
+        tables = run_quality_checks(transformed_tables)
+
+        # Step 4: Load data
         logger.info("Loading data...")
         load_data(transformed_tables)
         logger.info("ETL pipeline completed successfully.")
